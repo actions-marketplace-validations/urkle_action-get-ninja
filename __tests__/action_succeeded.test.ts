@@ -3,30 +3,34 @@
 // SPDX short identifier: MIT
 
 import * as os from 'os';
-import * as getcmake from '../src/get-cmake';
-import * as cache from '@actions/cache';
+import * as getninja from '../src/get-ninja';
 import * as toolcache from '@actions/tool-cache';
 import * as core from '@actions/core';
 
 jest.setTimeout(15 * 1000)
 
-jest.mock('@actions/tool-cache');
-
-jest.spyOn(cache, 'saveCache').mockImplementation(() =>
-    Promise.resolve(0)
+jest.spyOn(toolcache, 'downloadTool').mockImplementation(() =>
+    Promise.resolve('/path/to/download')
 );
 
-jest.spyOn(cache, 'restoreCache').mockImplementation(() =>
-    Promise.resolve("42")
+jest.spyOn(toolcache, 'extractZip').mockImplementation(() =>
+    Promise.resolve('/path/to/extracted')
 );
 
-var coreSetFailed = jest.spyOn(core, 'setFailed');
-var coreError = jest.spyOn(core, 'error');
-var toolsCacheDir = jest.spyOn(toolcache, 'cacheDir');
+jest.spyOn(toolcache, 'find').mockImplementation(() =>
+    ''
+);
 
-test('testing get-cmake action success', async () => {
+jest.spyOn(toolcache, 'cacheDir').mockImplementation(() =>
+    Promise.resolve("/path/to/cache")
+);
+
+const coreSetFailed = jest.spyOn(core, 'setFailed');
+const coreError = jest.spyOn(core, 'error');
+
+test('testing action-get-ninja action success', async () => {
     process.env.RUNNER_TEMP = os.tmpdir();
-    await getcmake.main();
-    expect(coreSetFailed).toBeCalledTimes(0);
-    expect(coreError).toBeCalledTimes(0);
+    await getninja.main();
+    expect(coreSetFailed).not.toHaveBeenCalled();
+    expect(coreError).not.toHaveBeenCalled();
 });

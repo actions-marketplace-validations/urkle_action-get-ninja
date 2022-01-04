@@ -1,12 +1,17 @@
 # Copyright (c) 2020 Luca Cappa
+# Copyright (c) 2021 Edward Rudd
 # Released under the term specified in file LICENSE.txt
 # SPDX short identifier: MIT
 
-name: 'get-cmake'
-description: 'Installs (and caches) CMake and ninja onto GitHub runners.'
-author: 'Luca Cappa https://github.com/lukka'
-# inputs:
-# no inputs, no outputs!
+name: 'action-get-ninja'
+description: 'Installs (and caches) ninja onto GitHub runners.'
+author: 'Edward Rudd https://github.com/urkle'
+inputs:
+  version:
+    description: 'Version of ninja-build to install'
+    default: '1.10.2'
+    required: false
+
 runs:
   using: 'node12'
   main: 'dist/index.js'

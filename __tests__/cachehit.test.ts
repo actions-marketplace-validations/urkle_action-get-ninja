@@ -4,25 +4,33 @@
 
 import * as process from 'process';
 import * as os from 'os';
-import { ToolsGetter } from '../src/get-cmake';
-import * as cache from '@actions/cache';
+import { ToolsGetter } from '../src/get-ninja';
+import * as toolcache from '@actions/tool-cache';
 
 jest.setTimeout(15 * 1000)
 
-jest.mock('@actions/tool-cache');
-
-const cacheSaveCache = jest.spyOn(cache, 'saveCache').mockImplementation(() =>
-    Promise.resolve(0)
+const toolDownloadTool = jest.spyOn(toolcache, 'downloadTool').mockImplementation(() =>
+    Promise.resolve('/path/to/download')
 );
 
-const cacheRestoreCache = jest.spyOn(cache, 'restoreCache').mockImplementation(() =>
-    Promise.resolve("key")
+const toolExtractZip = jest.spyOn(toolcache, 'extractZip').mockImplementation(() =>
+    Promise.resolve('/path/to/extracted')
 );
 
-test('testing get-cmake with cache-hit...', async () => {
+const toolFind = jest.spyOn(toolcache, 'find').mockImplementation(() =>
+    '/path/to/cache/'
+);
+
+const toolCacheDir = jest.spyOn(toolcache, 'cacheDir').mockImplementation(() =>
+    Promise.resolve("/path/to/cache")
+);
+
+test('testing action-get-ninja with cache-hit...', async () => {
     process.env.RUNNER_TEMP = os.tmpdir();
     const getter: ToolsGetter = new ToolsGetter();
     await getter.run();
-    expect(cacheSaveCache).toBeCalledTimes(0);
-    expect(cacheRestoreCache).toBeCalledTimes(1);
+    expect(toolFind).toBeCalledTimes(1);
+    expect(toolCacheDir).not.toHaveBeenCalled();
+    expect(toolDownloadTool).not.toHaveBeenCalled();
+    expect(toolExtractZip).not.toHaveBeenCalled();
 });
